@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Watch This | Motion Media</title>
+  <meta name="description" content="Watch the quick video, then book your call with Motion Media." />
+  <meta name="theme-color" content="#0A0A0A" />
+  <meta name="robots" content="noindex,nofollow" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    :root {
+      --cream: #F5F2EA;
+      --ink: #0A0A0A;
+      --muted: rgba(245, 242, 234, 0.5);
+      --accent: #F56600;
+      --accent-hi: #F8944C;
+    }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 400;
+      color: rgba(245, 242, 234, 0.72);
+      background: #0A0A0A;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* Nav */
+    .nav { position: absolute; top: 0; left: 0; right: 0; z-index: 10; }
+    .nav-inner {
+      max-width: 1180px; margin: 0 auto; padding: 0 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 76px;
+    }
+    .logo { display: inline-flex; align-items: center; }
+    .logo img { height: 38px; width: auto; display: block; border-radius: 8px; }
+    .nav-social { display: flex; align-items: center; gap: 14px; }
+    .nav-ig { display: inline-flex; color: rgba(245,242,234,0.7); transition: color .2s ease, transform .15s ease; }
+    .nav-ig:hover { color: var(--cream); transform: translateY(-1px); }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 130px 24px 20px;
+      overflow: hidden;
+    }
+    .glow {
+      position: absolute; z-index: 0;
+      top: -6%; left: 50%; transform: translateX(-50%);
+      width: 92vw; max-width: 900px; height: 520px;
+      background: radial-gradient(ellipse at center, rgba(245,102,0,0.20) 0%, rgba(245,102,0,0.05) 42%, transparent 72%);
+      filter: blur(24px);
+      pointer-events: none;
+    }
+    .hero-inner { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; }
+    .eyebrow {
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--accent-hi);
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: clamp(38px, 6vw, 68px);
+      font-weight: 900;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--cream);
+      margin: 0 0 20px;
+    }
+    h1 span { color: var(--accent); }
+    .lede {
+      font-size: clamp(16px, 1.4vw, 19px);
+      line-height: 1.6;
+      color: rgba(245, 242, 234, 0.7);
+      max-width: 52ch;
+      margin: 0 auto;
+    }
+
+    /* Section wrapper */
+    .section { position: relative; z-index: 2; padding: 40px 24px; }
+    .wrap { max-width: 860px; margin: 0 auto; }
+    .section-label {
+      text-align: center;
+      font-size: 12px; font-weight: 700;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .bridge {
+      text-align: center;
+      font-size: clamp(16px, 1.4vw, 19px);
+      line-height: 1.6;
+      color: rgba(245, 242, 234, 0.7);
+      font-weight: 400;
+      max-width: 52ch;
+      margin: 0 auto 36px;
+    }
+
+    /* Info video (vertical) */
+    .vsl {
+      position: relative;
+      width: 100%; max-width: 340px; margin: 0 auto;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #141210;
+      border: 1px solid rgba(245,242,234,0.1);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      aspect-ratio: 9 / 16;
+    }
+    .vsl video { width: 100%; height: 100%; display: block; object-fit: cover; background: #000; }
+    .vsl .play-btn {
+      position: absolute; inset: 0; margin: auto;
+      width: 84px; height: 84px;
+      display: grid; place-items: center;
+      background: rgba(245,242,234,0.95);
+      border: none; border-radius: 50%;
+      cursor: pointer;
+      transition: transform .15s ease, background .2s ease;
+    }
+    .vsl .play-btn:hover { transform: scale(1.06); background: #fff; }
+    .vsl .play-btn svg { width: 30px; height: 30px; margin-left: 4px; fill: var(--ink); }
+    .vsl .play-btn.hidden { display: none; }
+
+    /* Calendar embed */
+    .cal-wrap {
+      max-width: 820px; margin: 0 auto;
+      background: rgba(245,242,234,0.03);
+      border: 1px solid rgba(245,242,234,0.1);
+      border-radius: 18px;
+      padding: 14px;
+      min-height: 680px;
+    }
+    .cal-wrap iframe { width: 100%; min-height: 680px; border: none; border-radius: 12px; display: block; }
+    .trust { text-align: center; font-size: 14px; color: var(--muted); margin: 26px auto 0; max-width: 48ch; }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      background: #050505; color: rgba(245,242,234,0.6);
+      padding: 28px 0; font-size: 13px;
+      border-top: 1px solid rgba(245,242,234,0.06);
+    }
+    .footer-inner {
+      max-width: 1180px; margin: 0 auto; padding: 0 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .footer-inner .logo img { height: 30px; }
+    .footer-links a { margin-left: 20px; color: rgba(245,242,234,0.55); }
+    .footer-links a:hover { color: var(--cream); }
+
+    @media (max-width: 600px) {
+      .hero { padding: 104px 18px 12px; }
+      .section { padding: 28px 16px; }
+      .vsl { max-width: 300px; }
+      .vsl .play-btn { width: 72px; height: 72px; }
+      .cal-wrap { padding: 8px; min-height: 640px; border-radius: 14px; }
+      .cal-wrap iframe { min-height: 640px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; gap: 14px; }
+      .footer-links a { margin-left: 0; margin-right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="logo" aria-label="Motion Media"><img src="motion-logo.png" alt="Motion Media" /></a>
+      <div class="nav-social">
+        <a href="https://www.instagram.com/motionmediastl/" target="_blank" rel="noopener" class="nav-ig" aria-label="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+          </svg>
+        </a>
+        <a href="https://www.facebook.com/motionmediastl" target="_blank" rel="noopener" class="nav-ig" aria-label="Facebook">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="glow"></div>
+    <div class="hero-inner">
+      <div class="eyebrow">Watch this first</div>
+      <h1>More leads<br><span>won't save you.</span></h1>
+      <p class="lede">
+        If you think more leads is the answer, you're chasing the wrong number. Watch the 60 seconds below.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ INFO VIDEO (vertical, ~1 min) ============ -->
+  <!-- Video lives in the repo root as book-vsl.mp4. #t=0.1 shows a thumbnail frame on mobile. -->
+  <section class="section" id="vsl-section">
+    <div class="wrap">
+      <div class="vsl">
+        <video src="book-vsl.mp4#t=0.1" playsinline preload="metadata"></video>
+        <button class="play-btn" aria-label="Play video">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CALENDAR ============ -->
+  <section class="section" id="book">
+    <div class="wrap">
+      <p class="bridge">Book a call to see how this can work for your business.</p>
+      <div class="section-label">Pick a time</div>
+      <div class="cal-wrap">
+        <iframe src="https://api.leadconnectorhq.com/widget/booking/kc8u3iGxBIaFDif9CBKn" allow="payment" scrolling="no" id="kc8u3iGxBIaFDif9CBKn_vsl"></iframe>
+      </div>
+      <p class="trust">No pressure, no obligation. Just a straight conversation about whether we're a fit.</p>
+    </div>
+  </section>
+
+  <script src="https://link.msgsndr.com/js/form_embed.js" type="text/javascript"></script>
+
+  <footer>
+    <div class="footer-inner">
+      <a href="index.html" class="logo" aria-label="Motion Media"><img src="motion-logo.png" alt="Motion Media" /></a>
+      <div class="footer-links">
+        <a href="mailto:motionmediastl@gmail.com">motionmediastl@gmail.com</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.vsl').forEach(function (box) {
+      var v = box.querySelector('video');
+      var btn = box.querySelector('.play-btn');
+      if (!v || !btn) return;
+      btn.addEventListener('click', function () {
+        v.controls = true;
+        v.play();
+      });
+      v.addEventListener('play', function () { btn.classList.add('hidden'); });
+      v.addEventListener('ended', function () { btn.classList.remove('hidden'); v.controls = false; });
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Client to-do</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;900&display=swap" rel="stylesheet"><style id="css">
+/* VOICE: plain and quick, Motion Media's own look
+   IDEA: a short job list per client
+   PICTURE: the client cards themselves, right under the title
+   COLOUR and TYPE: black #0a0a0a, cream #f5f2ea, orange #f56600; Inter, 900 caps for the title
+   LAYOUT: title, one add-client field, then a grid of cards */
+:root{color-scheme:dark;--bg:#0a0a0a;--card:#141414;--line:#2a2a2a;--ink:#f5f2ea;--mute:rgba(245,242,234,.55);--or:#f56600}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:1180px;margin:0 auto;padding:clamp(24px,4vw,48px) max(4vw,16px) 90px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.mark{width:40px;height:40px;border-radius:10px;background:var(--or);display:grid;place-items:center;color:#0a0a0a;font-weight:900;font-size:22px;font-style:italic;flex:none}
+h1{margin:0;font-weight:900;font-size:clamp(28px,4vw,40px);line-height:1;letter-spacing:-.03em;text-transform:uppercase}
+h1 span{color:var(--or)}
+#status{margin-inline-start:auto;font-size:13px;color:var(--mute)}
+input,button{font:inherit;color:inherit}
+input[type=text]{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:10px 18px;min-height:46px;font-size:16px;width:100%}
+input:focus-visible,button:focus-visible{outline:2px solid var(--or);outline-offset:2px}
+button{cursor:pointer;border:0;background:transparent;min-height:44px;border-radius:99px}
+.go{background:var(--or);color:#0a0a0a;font-weight:600;padding:0 22px;white-space:nowrap}
+.go:hover{background:#ff7a1f}
+#addClient{display:flex;gap:8px;max-width:560px;margin-bottom:28px}
+#list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:14px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px 16px 14px}
+.ch{display:flex;align-items:center;gap:8px}
+h2{margin:0;flex:1;font-size:19px;font-weight:600;overflow-wrap:anywhere}
+.count{font-size:13px;color:var(--mute);white-space:nowrap}
+.icon{width:36px;min-height:36px;display:grid;place-items:center;color:var(--mute);border-radius:10px;font-size:18px;flex:none}
+.icon:hover{background:var(--line);color:var(--ink)}
+.rename{display:flex;gap:6px;flex:1}
+.rename input{min-height:40px;padding:6px 14px}
+.rename .go{min-height:40px;padding:0 14px}
+ul{list-style:none;margin:12px 0 0;padding:0}
+li{display:flex;align-items:center;gap:6px;border-top:1px solid var(--line);padding:4px 0}
+li label{display:flex;align-items:center;gap:10px;flex:1;padding:6px 0;cursor:pointer;overflow-wrap:anywhere}
+li input{width:20px;height:20px;accent-color:var(--or);flex:none;cursor:pointer;margin:0}
+li.done label{color:var(--mute);text-decoration:line-through}
+li .icon{opacity:.5}li:hover .icon{opacity:1}
+.more{font-size:13px;color:var(--mute);min-height:34px;padding:0 4px}
+.more:hover{color:var(--ink)}
+.addt{display:flex;gap:6px;margin-top:10px}
+.addt input{min-height:42px;padding:8px 16px}
+.addt .go{min-height:42px;padding:0 16px}
+.empty{grid-column:1/-1;text-align:center;padding:56px 16px;color:var(--mute);border:1.5px dashed var(--line);border-radius:18px}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#0a0a0a;border-radius:99px;padding:4px 4px 4px 18px;display:flex;gap:8px;align-items:center;font-size:14px;box-shadow:0 12px 30px -10px #000;max-width:calc(100vw - 32px)}
+#toast button{color:var(--or);font-weight:600;padding:0 14px;min-height:38px}
+#toast[hidden]{display:none}
+@media (prefers-reduced-motion:no-preference){.card{animation:in .2s ease-out}@keyframes in{from{opacity:0;transform:translateY(5px)}}}
+@media(max-width:600px){#status{width:100%;margin:0}}
+</style></head><body><div id="app"><div class="wrap">
+<header class="top"><div class="mark" aria-hidden="true">M</div><h1>Client <span>to-do</span></h1><div id="status" aria-live="polite"></div></header>
+<form id="addClient" autocomplete="off"><input type="text" id="cName" placeholder="Add a client" aria-label="Client name"><button class="go">Add</button></form>
+<main id="list"></main></div>
+<div id="toast" hidden role="status"><span id="toastMsg"></span><button id="undo" type="button">Undo</button></div></div><script id="main">
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KEY='motion-client-todo';
+let S={clients:[]};
+try{const d=JSON.parse(localStorage.getItem(KEY)||'null');if(d&&Array.isArray(d.clients))S=d}catch(e){}
+let ui={showDone:{}},editC=null,refocus=null,toastT=null,undoFn=null;
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const setStatus=t=>{$('#status').textContent=t};
+const findC=id=>S.clients.find(c=>c.id===id);
+function render(){
+ if(!S.clients.length){$('#list').innerHTML='<div class="empty">Add your first client above, then list what needs to get done.</div>';return}
+ $('#list').innerHTML=S.clients.map(c=>{
+  const open=c.tasks.filter(k=>!k.done),done=c.tasks.filter(k=>k.done),show=ui.showDone[c.id];
+  const list=open.concat(show?done:[]);
+  const head=editC===c.id
+   ?`<form class="rename"><input type="text" value="${esc(c.name)}" aria-label="Client name"><button class="go">Save</button><button type="button" class="icon" data-act="delc" aria-label="Delete client" title="Delete client">🗑</button></form>`
+   :`<h2>${esc(c.name)}</h2><span class="count">${open.length} to do</span><button class="icon" data-act="editc" aria-label="Rename or delete ${esc(c.name)}" title="Rename or delete">✎</button>`;
+  return`<article class="card" data-c="${esc(c.id)}"><div class="ch">${head}</div>${list.length?`<ul>${list.map(k=>`<li class="${k.done?'done':''}" data-t="${esc(k.id)}"><label><input type="checkbox" data-act="toggle" ${k.done?'checked':''}><span>${esc(k.text)}</span></label><button class="icon" data-act="delt" aria-label="Delete task">×</button></li>`).join('')}</ul>`:''}${done.length?`<button class="more" data-act="showdone">${show?'Hide':'Show'} ${done.length} done</button>`:''}<form class="addt" autocomplete="off"><input type="text" placeholder="Add a task" aria-label="New task for ${esc(c.name)}"><button class="go">Add</button></form></article>`;
+ }).join('');
+ if(refocus){const el=$(refocus);if(el)el.focus();refocus=null}
+}
+
+function changed(){try{localStorage.setItem(KEY,JSON.stringify(S));setStatus('Saved in this browser')}catch(e){setStatus('Could not save in this browser')}render()}
+function toast(msg,fn){undoFn=fn;$('#toastMsg').textContent=msg;$('#toast').hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>{$('#toast').hidden=true;undoFn=null},6000)}
+$('#undo').addEventListener('click',()=>{const fn=undoFn;undoFn=null;$('#toast').hidden=true;clearTimeout(toastT);if(fn){fn();changed()}});
+
+$('#addClient').addEventListener('submit',e=>{e.preventDefault();const n=$('#cName').value.trim();if(!n)return;const id=uid();S.clients.push({id,name:n,tasks:[]});$('#cName').value='';refocus=`[data-c="${id}"] .addt input`;changed()});
+
+const L=$('#list');
+L.addEventListener('submit',e=>{
+ e.preventDefault();const c=findC(e.target.closest('[data-c]').dataset.c);if(!c)return;
+ const v=e.target.querySelector('input').value.trim();if(!v)return;
+ if(e.target.classList.contains('addt')){c.tasks.push({id:uid(),text:v,done:false});refocus=`[data-c="${c.id}"] .addt input`}
+ else{c.name=v;editC=null}
+ changed();
+});
+L.addEventListener('click',e=>{
+ const b=e.target.closest('[data-act]');if(!b)return;
+ const c=findC(b.closest('[data-c]').dataset.c);if(!c)return;
+ const li=b.closest('[data-t]'),k=li&&c.tasks.find(x=>x.id===li.dataset.t);
+ switch(b.dataset.act){
+  case'toggle':if(k){k.done=b.checked;changed()}break;
+  case'delt':if(k){const i=c.tasks.indexOf(k);c.tasks.splice(i,1);toast('Task deleted',()=>{c.tasks.splice(i,0,k)});changed()}break;
+  case'editc':editC=c.id;refocus=`[data-c="${c.id}"] .rename input`;render();break;
+  case'delc':{const i=S.clients.indexOf(c);S.clients.splice(i,1);editC=null;toast(`Deleted ${c.name}`,()=>{S.clients.splice(i,0,c)});changed()}break;
+  case'showdone':ui.showDone[c.id]=!ui.showDone[c.id];render();break;
+ }
+});
+L.addEventListener('keydown',e=>{if(e.key==='Escape'&&editC){editC=null;render()}});
+
+render();
+}
+</script></body></html>
